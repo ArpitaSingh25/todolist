@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Todo List</title>
+    <style>
+        /* Add some basic styling */
+        body {
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+        }
+        #todo-list {
+            list-style: none;
+            padding: 0;
+        }
+        #todo-list li {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #ccc;
+            padding: 8px;
+            margin: 5px 0;
+        }
+        #todo-list li input[type="text"] {
+            flex: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Todo List</h1>
+        <input type="text" id="new-task" placeholder="Add a new task">
+        <button id="add-task">Add</button>
+        <ul id="todo-list">
+            <!-- Tasks will be added here dynamically -->
+        </ul>
+    </div>
+
+    <script>
+        // JavaScript code to handle the Todo List functionality
+
+        document.addEventListener("DOMContentLoaded", function() {
+            const newTaskInput = document.getElementById("new-task");
+            const addTaskButton = document.getElementById("add-task");
+            const todoList = document.getElementById("todo-list");
+
+            addTaskButton.addEventListener("click", function() {
+                const taskText = newTaskInput.value.trim();
+
+                if (taskText !== "") {
+                    const listItem = document.createElement("li");
+                    listItem.innerHTML = `
+                        <input type="text" value="${taskText}">
+                        <button class="update-task">Update</button>
+                        <button class="delete-task">Delete</button>
+                    `;
+                    todoList.appendChild(listItem);
+
+                    // Save the task to local storage
+                    saveTask(taskText);
+
+                    // Clear the input field after adding a task
+                    newTaskInput.value = "";
+
+                    // Add event listeners for updating and deleting tasks
+                    const updateButton = listItem.querySelector(".update-task");
+                    const deleteButton = listItem.querySelector(".delete-task");
+
+                    updateButton.addEventListener("click", function() {
+                        const updatedTaskText = listItem.querySelector("input[type='text']").value;
+                        updateTask(taskText, updatedTaskText);
+                    });
+
+                    deleteButton.addEventListener("click", function() {
+                        deleteTask(taskText);
+                        listItem.remove();
+                    });
+                }
+            });
+
+            // Handle Enter key press to add a new task
+            newTaskInput.addEventListener("keyup", function(event) {
+                if (event.key === "Enter") {
+                    addTaskButton.click();
+                }
+            });
+
+            // Load tasks from local storage when the page loads
+            loadTasks();
+
+            function saveTask(taskText) {
+                const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                tasks.push(taskText);
+                localStorage.setItem("tasks", JSON.stringify(tasks));
+            }
+
+            function updateTask(oldText, newText) {
+                const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                const index = tasks.indexOf(oldText);
+                if (index !== -1) {
+                    tasks[index] = newText;
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                }
+            }
+
+            function deleteTask(taskText) {
+                const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                const index = tasks.indexOf(taskText);
+                if (index !== -1) {
+                    tasks.splice(index, 1);
+                    localStorage.setItem("tasks", JSON.stringify(tasks));
+                }
+            }
+
+            function loadTasks() {
+                const tasks = JSON.parse(localStorage.getItem("tasks")) || [];
+                for (const taskText of tasks) {
+                    const listItem = document.createElement("li");
+                    listItem.innerHTML = `
+                        <input type="text" value="${taskText}">
+                        <button class="update-task">Update</button>
+                        <button class="delete-task">Delete</button>
+                    `;
+                    todoList.appendChild(listItem);
+
+                    // Add event listeners for updating and deleting tasks
+                    const updateButton = listItem.querySelector(".update-task");
+                    const deleteButton = listItem.querySelector(".delete-task");
+
+                    updateButton.addEventListener("click", function() {
+                        const updatedTaskText = listItem.querySelector("input[type='text']").value;
+                        updateTask(taskText, updatedTaskText);
+                    });
+
+                    deleteButton.addEventListener("click", function() {
+                        deleteTask(taskText);
+                        listItem.remove();
+                    });
+                }
+            }
+        });
+    </script>
+</body>
+</html>
